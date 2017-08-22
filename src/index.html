@@ -1,0 +1,207 @@
+<!doctype html> 
+<html lang="en"> 
+<head> 
+	<meta charset="UTF-8" />
+	<title>Missionary Game</title>
+	<script type="text/javascript" src="js/phaser.min.js"></script>
+    <style type="text/css">
+        body {
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+
+<script type="text/javascript">
+
+var game = new Phaser.Game(600, 184, Phaser.AUTO, '', { preload: preload, create: createStage1, update: update });
+
+var flag;
+var platforms;
+var lastDirection;
+var atFlag;
+var signs;
+var arrowSign;
+var upSign;
+var stage = 1;
+
+
+
+function preload() {
+    game.load.image('background', 'assets/gameBackground.png');
+    game.load.image('ground', 'assets/GameGround.png');
+    game.load.spritesheet('dude', 'assets/MissionaryDudeStrip.png', 20, 45);
+    game.load.spritesheet('flag', 'assets/FlagStrip.png', 16, 21);
+    game.load.image('arrowSign', 'assets/Sign.png');
+    game.load.image('upSign', 'assets/upSign.png');
+
+}
+
+function createFlag() {
+    
+   
+}
+
+function createStage1() {
+    
+    game.stage.backgroundColor = "#214009";
+
+    //  We're going to be using physics, so enable the Arcade Physics system
+    game.physics.startSystem(Phaser.Physics.ARCADE);
+
+    //  A simple background for our game
+    game.add.sprite(0, 0, 'background');
+
+    //  The platforms group contains the ground and the 2 ledges we can jump on
+    platforms = game.add.group();
+
+    //  We will enable physics for any object that is created in this group
+    platforms.enableBody = true;
+
+    // Here we create the ground.
+    var ground = platforms.create(0, game.world.height - 46, 'ground');
+
+    //  This stops it from falling away when you jump on it
+    ground.body.immovable = true;
+
+    signs = game.add.group();
+    arrowSign = signs.create(50, game.world.height - 71, 'arrowSign');
+    upSign = signs.create(85, game.world.height - 71, 'upSign');
+
+    // The player and its settings
+    player = game.add.sprite(10, game.world.height - 110, 'dude');
+
+    //  We need to enable physics on the player
+    game.physics.arcade.enable(player);
+
+    //  Player physics properties. Give the little guy a slight bounce.
+    player.body.gravity.y = 1100;
+    player.body.collideWorldBounds = true;
+
+    //  Our three animations, walking left and right and idling
+    player.animations.add('left', [0, 1, 2, 3, 4, 5, 6], 10, true);
+    player.animations.add('right', [7, 8, 9, 10, 11, 12, 13], 10, true);
+    player.animations.add('idleLeft', [14, 15], 2.5, true);
+    player.animations.add('idleRight', [16, 17], 2.5, true);
+
+    flag = game.add.sprite(game.world.width - 20,  game.world.height - 67, 'flag');
+    game.physics.arcade.enable(flag);
+    flag.body.immovable = true;
+    flag.animations.add('wave', [0, 1], 3, true);
+
+    cursors = game.input.keyboard.createCursorKeys();
+
+}
+
+function createStage2() {
+   document.getElementById("positionDisplay").prepend("Stage 2!");
+
+  signs.remove(arrowSign);
+  signs.remove(upSign);
+
+  player.body.x = 20;
+
+
+}
+
+function createStage3() {
+   document.getElementById("positionDisplay").prepend("Stage 3!")
+
+  player.body.x = 20;
+
+
+}
+
+function update() {
+
+    flag.animations.play('wave');
+
+    atFlag = game.physics.arcade.collide(player, flag);
+
+    //  Collide the player and the stars with the platforms
+    var hitPlatform = game.physics.arcade.collide(player, platforms);
+
+    //  Reset the players velocity (movement)
+    player.body.velocity.x = 0;
+
+    if (cursors.left.isDown)
+    {
+        //  Move to the left
+        player.body.velocity.x = -150;
+        lastDirection = 'left';
+        player.animations.play('left');
+    }
+    else if (cursors.right.isDown)
+    {
+        //  Move to the right
+        player.body.velocity.x = 150;
+        lastDirection = 'right';
+        player.animations.play('right');
+    }
+
+    else if (!player.body.touching.down && !hitPlatform)
+    {
+        player.animations.stop();
+    }
+    else {
+
+        if (lastDirection === 'left') {
+            player.animations.play('idleLeft');
+        }
+
+        if (lastDirection === 'right') {
+            player.animations.play('idleRight');
+        }
+
+}
+
+        //  Allow the player to jump if they are touching the ground.
+    if (cursors.up.isDown && player.body.touching.down && hitPlatform)
+    {
+        player.body.velocity.y = -350;
+    }
+
+ 
+
+    if (atFlag) {
+        if (stage === 1) {
+            createStage2();
+            stage++;
+        }
+
+        else if (stage === 2) {
+            createStage3();
+            stage++;
+        }
+        
+    }
+    
+
+ //   game.physics.arcade.collide(platforms, /*, stars */);
+
+    /*game.physics.arcade.overlap(player, stars, collectStar, null, this);
+
+    function collectStar (player, star) {
+        
+             Removes the star from the screen
+            star.kill();
+        
+              Add and update the score
+            score += 10;
+            scoreText.text = 'Score: ' + score;
+        
+        }
+
+    if (score === 120) {
+        win = game.add.text(300, 250, 'YOU WIN!!!', { fontSize: '100px', fill: 'white' });
+   }
+*/
+}
+
+
+
+</script>
+<div id='positionDisplay'>
+</div>
+</body>
+</html>
