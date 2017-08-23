@@ -24,6 +24,7 @@ var signs;
 var arrowSign;
 var upSign;
 var stage = 1;
+var pit;
 
 
 
@@ -34,12 +35,15 @@ function preload() {
     game.load.spritesheet('flag', 'assets/FlagStrip.png', 16, 21);
     game.load.image('arrowSign', 'assets/Sign.png');
     game.load.image('upSign', 'assets/upSign.png');
-
+    game.load.image('pit', 'assets/Pit1.png');
 }
 
-function createFlag() {
-    
-   
+function nextStage() {
+    if (stage === 1) {
+        createStage2();
+        stage++;
+    }
+
 }
 
 function createStage1() {
@@ -96,11 +100,16 @@ function createStage1() {
 function createStage2() {
    document.getElementById("positionDisplay").prepend("Stage 2!");
 
-  signs.remove(arrowSign);
-  signs.remove(upSign);
+    signs.remove(arrowSign);
+    signs.remove(upSign);
 
-  player.body.x = 20;
+    player.body.x = 20;
 
+    pit = game.add.group();
+    pit.enableBody = true;
+    var pit1 = pit.create(200, game.world.height - 55, 'pit');
+    pit1.body.immovable = true;
+    pit1.scale.setTo(2,2);
 
 }
 
@@ -118,8 +127,9 @@ function update() {
 
     atFlag = game.physics.arcade.collide(player, flag);
 
-    //  Collide the player and the stars with the platforms
+    //  Collide the player with things
     var hitPlatform = game.physics.arcade.collide(player, platforms);
+    var hitPit = game.physics.arcade.collide(player, pit);
 
     //  Reset the players velocity (movement)
     player.body.velocity.x = 0;
@@ -174,6 +184,16 @@ function update() {
             stage++;
         }
         
+    }
+
+    if (hitPit) {
+        player.body.x = 20;
+    }
+
+    //debug cheat
+    if (cursors.down.isDown)
+    {
+        nextStage();
     }
     
 
