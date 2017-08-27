@@ -25,7 +25,9 @@ var arrowSign;
 var upSign;
 var stage = 1;
 var pit;
-
+var badSign;
+var playerAnimation = 'dude';
+var vine;
 
 
 function preload() {
@@ -36,6 +38,9 @@ function preload() {
     game.load.image('arrowSign', 'assets/Sign.png');
     game.load.image('upSign', 'assets/upSign.png');
     game.load.image('pit', 'assets/Pit1.png');
+    game.load.image('badSign', 'assets/badSign.png');
+    game.load.spritesheet('vineStrip', 'assets/vineStrip.png', 90, 75);
+    game.load.image('vine', 'assets/Vine.png');
 }
 
 function nextStage() {
@@ -73,7 +78,7 @@ function createStage1() {
     upSign = signs.create(85, game.world.height - 71, 'upSign');
 
     // The player and its settings
-    player = game.add.sprite(10, game.world.height - 110, 'dude');
+    player = game.add.sprite(10, game.world.height - 110, 'vineStrip');
 
     //  We need to enable physics on the player
     game.physics.arcade.enable(player);
@@ -83,6 +88,7 @@ function createStage1() {
     player.body.collideWorldBounds = true;
 
     //  Our three animations, walking left and right and idling
+    player.animations.add('swing', [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15], 10, true);
     player.animations.add('left', [0, 1, 2, 3, 4, 5, 6], 10, true);
     player.animations.add('right', [7, 8, 9, 10, 11, 12, 13], 10, true);
     player.animations.add('idleLeft', [14, 15], 2.5, true);
@@ -104,12 +110,20 @@ function createStage2() {
     signs.remove(upSign);
 
     player.body.x = 20;
-
+/*
     pit = game.add.group();
     pit.enableBody = true;
-    var pit1 = pit.create(200, game.world.height - 55, 'pit');
+    var pit1 = pit.create(200, game.world.height - 47, 'pit');
     pit1.body.immovable = true;
-    pit1.scale.setTo(2,2);
+    pit1.scale.setTo(1.75, 1.75);
+    */
+
+    badSign = signs.create(85, game.world.height - 71, 'badSign');
+
+    vine = game.add.group();
+    vine.enableBody = true;
+    var vine1 = vine.create(280, 40, 'vine');
+    vine1.body.immovable = true;
 
 }
 
@@ -123,13 +137,15 @@ function createStage3() {
 
 function update() {
 
+    player.animations.play('swing');
     flag.animations.play('wave');
 
     atFlag = game.physics.arcade.collide(player, flag);
 
     //  Collide the player with things
     var hitPlatform = game.physics.arcade.collide(player, platforms);
-    var hitPit = game.physics.arcade.collide(player, pit);
+   // var hitPit = game.physics.arcade.collide(player, pit);
+    var grabVine = game.physics.arcade.collide(player, vine);
 
     //  Reset the players velocity (movement)
     player.body.velocity.x = 0;
@@ -151,9 +167,10 @@ function update() {
 
     else if (!player.body.touching.down && !hitPlatform)
     {
-        player.animations.stop();
+       // player.animations.stop();
+        player.animations.play('swing');
     }
-    else {
+  /*  else {
 
         if (lastDirection === 'left') {
             player.animations.play('idleLeft');
@@ -164,7 +181,7 @@ function update() {
         }
 
 }
-
+*/
         //  Allow the player to jump if they are touching the ground.
     if (cursors.up.isDown && player.body.touching.down && hitPlatform)
     {
@@ -185,11 +202,17 @@ function update() {
         }
         
     }
-
+/*
+    //respawn if player touches a pit
     if (hitPit) {
         player.body.x = 20;
     }
 
+    if (grabVine) {
+        playerAnimation = 'vineStrip';
+        player.animations.play('swing');
+    }
+*/
     //debug cheat
     if (cursors.down.isDown)
     {
