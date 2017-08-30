@@ -18,7 +18,7 @@ var game = new Phaser.Game(600, 184, Phaser.AUTO, '', { preload: preload, create
 
 var flag;
 var platforms;
-var lastDirection;
+var lastDirection = 'right';
 var atFlag;
 var signs;
 var arrowSign;
@@ -39,7 +39,7 @@ function preload() {
     game.load.image('upSign', 'assets/upSign.png');
     game.load.image('pit', 'assets/Pit1.png');
     game.load.image('badSign', 'assets/badSign.png');
-    game.load.spritesheet('vineStrip', 'assets/vineStrip.png', 87, 75);
+    game.load.spritesheet('vineStrip', 'assets/vineStrip.png', 92, 75);
     game.load.image('vine', 'assets/Vine.png');
 }
 
@@ -48,6 +48,31 @@ function nextStage() {
         createStage2();
         stage++;
     }
+
+}
+//mathy stuff for vine drawing
+function mapRange(from, to, s) {
+  return to[0] + (s - from[0]) * (to[1] - to[0]) / (from[1] - from[0]);
+};
+ 
+var range = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+for (var i = 0; i < range.length; i++) {
+  range[i] = mapRange([0, 10], [-1, 0], range[i]);
+}
+
+function drawVine(x, y) {
+    Math.sin(/*something goes here*/);
+
+    var radius = 100;
+    var centerX = x;
+    var centerY = y;
+    var endX = centerX + (radius * Math.cos(angle));
+    var endY = centerY + (radius * Math.sin(angle));
+
+    context.beginPath();
+    context.moveTo(centerX, centerY);
+    context.lineTo(endX, endY);
+    context.stroke();
 
 }
 
@@ -78,7 +103,7 @@ function createStage1() {
     upSign = signs.create(85, game.world.height - 71, 'upSign');
 
     // The player and its settings
-    player = game.add.sprite(10, game.world.height - 110, 'vineStrip');
+    player = game.add.sprite(10, game.world.height - 110, 'dude');
 
     //  We need to enable physics on the player
     game.physics.arcade.enable(player);
@@ -88,7 +113,7 @@ function createStage1() {
     player.body.collideWorldBounds = true;
 
     //  Our three animations, walking left and right and idling
-    player.animations.add('swing', [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15], 10, true);
+    player.animations.add('swing', [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15], 8, true);
     player.animations.add('left', [0, 1, 2, 3, 4, 5, 6], 10, true);
     player.animations.add('right', [7, 8, 9, 10, 11, 12, 13], 10, true);
     player.animations.add('idleLeft', [14, 15], 2.5, true);
@@ -110,13 +135,13 @@ function createStage2() {
     signs.remove(upSign);
 
     player.body.x = 20;
-/*
+
     pit = game.add.group();
     pit.enableBody = true;
     var pit1 = pit.create(200, game.world.height - 47, 'pit');
     pit1.body.immovable = true;
     pit1.scale.setTo(1.75, 1.75);
-    */
+    
 
     badSign = signs.create(85, game.world.height - 71, 'badSign');
 
@@ -137,14 +162,13 @@ function createStage3() {
 
 function update() {
 
-    player.animations.play('swing');
     flag.animations.play('wave');
 
     atFlag = game.physics.arcade.collide(player, flag);
 
     //  Collide the player with things
     var hitPlatform = game.physics.arcade.collide(player, platforms);
-   // var hitPit = game.physics.arcade.collide(player, pit);
+    var hitPit = game.physics.arcade.collide(player, pit);
     var grabVine = game.physics.arcade.collide(player, vine);
 
     //  Reset the players velocity (movement)
@@ -167,10 +191,9 @@ function update() {
 
     else if (!player.body.touching.down && !hitPlatform)
     {
-       // player.animations.stop();
-        player.animations.play('swing');
+        player.animations.stop();
     }
-  /*  else {
+   else {
 
         if (lastDirection === 'left') {
             player.animations.play('idleLeft');
@@ -181,7 +204,7 @@ function update() {
         }
 
 }
-*/
+
         //  Allow the player to jump if they are touching the ground.
     if (cursors.up.isDown && player.body.touching.down && hitPlatform)
     {
@@ -202,8 +225,8 @@ function update() {
         }
         
     }
-/*
-    //respawn if player touches a pit
+
+    // respawn if player touches a pit
     if (hitPit) {
         player.body.x = 20;
     }
@@ -212,8 +235,8 @@ function update() {
         playerAnimation = 'vineStrip';
         player.animations.play('swing');
     }
-*/
-    //debug cheat
+
+    // debug cheat
     if (cursors.down.isDown)
     {
         nextStage();
