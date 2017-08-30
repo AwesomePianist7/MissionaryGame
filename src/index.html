@@ -14,7 +14,7 @@
 
 <script type="text/javascript">
 
-var game = new Phaser.Game(600, 184, Phaser.AUTO, '', { preload: preload, create: createStage1, update: update });
+var game = new Phaser.Game(600, 184, Phaser.AUTO, '', { preload: preload, create: createStage1, update: update, render: render });
 
 var flag;
 var platforms;
@@ -28,7 +28,8 @@ var pit;
 var badSign;
 var playerAnimation = 'dude';
 var vine;
-
+var line;
+var box;
 
 function preload() {
     game.load.image('background', 'assets/gameBackground.png');
@@ -60,19 +61,22 @@ for (var i = 0; i < range.length; i++) {
   range[i] = mapRange([0, 10], [-1, 0], range[i]);
 }
 
-function drawVine(x, y) {
-    Math.sin(/*something goes here*/);
 
-    var radius = 100;
+var angle = Math.sin(Math.PI / 2);
+
+function drawVine(x, y) {
+
+    var radius = 50;
     var centerX = x;
     var centerY = y;
-    var endX = centerX + (radius * Math.cos(angle));
-    var endY = centerY + (radius * Math.sin(angle));
+    var endX = centerX + 50;
+    var endY = centerY + 50;
+   // var endX = centerX + (radius * Math.cos(angle));
+   // var endY = centerY + (radius * Math.sin(angle));
 
-    context.beginPath();
-    context.moveTo(centerX, centerY);
-    context.lineTo(endX, endY);
-    context.stroke();
+   line.width = 100;
+   line.setTo(50, 50, 100, 100);
+
 
 }
 
@@ -126,6 +130,10 @@ function createStage1() {
 
     cursors = game.input.keyboard.createCursorKeys();
 
+    //box = context.rect(100, 100, 50, 50);
+    //box.fillStyle = 'black';
+    //box.fill();
+    
 }
 
 function createStage2() {
@@ -144,12 +152,17 @@ function createStage2() {
     
 
     badSign = signs.create(85, game.world.height - 71, 'badSign');
+    
+   // line = new Phaser.Line(300, 100, 500, 500);
 
+/*
     vine = game.add.group();
     vine.enableBody = true;
-    var vine1 = vine.create(280, 40, 'vine');
+    var vine1 = vine.create(277, 40, 'vine');
     vine1.body.immovable = true;
+*/
 
+   // drawVine(277, 40);
 }
 
 function createStage3() {
@@ -169,7 +182,7 @@ function update() {
     //  Collide the player with things
     var hitPlatform = game.physics.arcade.collide(player, platforms);
     var hitPit = game.physics.arcade.collide(player, pit);
-    var grabVine = game.physics.arcade.collide(player, vine);
+    var grabVine = game.physics.arcade.collide(player, line);
 
     //  Reset the players velocity (movement)
     player.body.velocity.x = 0;
@@ -232,8 +245,7 @@ function update() {
     }
 
     if (grabVine) {
-        playerAnimation = 'vineStrip';
-        player.animations.play('swing');
+
     }
 
     // debug cheat
@@ -242,7 +254,11 @@ function update() {
         nextStage();
     }
     
-
+/*
+    if  (stage === 2) {
+        drawVine(100,100);
+    }
+      */  
  //   game.physics.arcade.collide(platforms, /*, stars */);
 
     /*game.physics.arcade.overlap(player, stars, collectStar, null, this);
@@ -262,6 +278,11 @@ function update() {
         win = game.add.text(300, 250, 'YOU WIN!!!', { fontSize: '100px', fill: 'white' });
    }
 */
+}
+function render() {
+
+  //  game.debug.geom(line, "black", true);
+
 }
 
 
